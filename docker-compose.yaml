@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    ports:
+      - "8686:3000" # Adjust port according to your pnpm app
+    volumes:
+      - .:/app
+      - /app/node_modules
