@@ -127,6 +127,7 @@ def update_account_me():
     url_all = url + "?" + symbol_to_sign + "&signature=" + str(signature)
     try:
         response = requests.get(url_all,headers=headers).json()
+        print(response)
         for item in response["balances"]:
             symbol = item["asset"]
             bal["Mexc"]["spot"][symbol] = float(item["free"])
@@ -194,6 +195,7 @@ def get_listen_key_me():
     url_all = url + "?" + symbol_to_sign + "&signature=" + str(signature)
     try:
         response = requests.post(url_all,headers=headers).json()
+        print(response, "from get_listen_key_me")
         return response["listenKey"]
     except Exception as e:
         print("Have error in place_order_me")
@@ -223,7 +225,7 @@ def get_info_wss_me():
     while True:
         listen_key = get_listen_key_me()
         try:
-            ws = create_connection("wss://wbs.mexc.com/ws?listenKey=" + listen_key)
+            ws = create_connection("wss://wbs.mexc.com/ws?listenKey=" + str(listen_key))
             request = {
                 "method": "SUBSCRIPTION",
                 "params": [
@@ -303,7 +305,7 @@ async def main():
                 }
 
             # Broadcast to subscribed clients
-            print(output_dict)
+            # print(output_dict)
             await broadcast_data(output_dict)
             await asyncio.sleep(5)
 
