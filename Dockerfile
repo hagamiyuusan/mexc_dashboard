@@ -1,25 +1,8 @@
-# Node base image for pnpm
-FROM node:18-slim AS node_base
-
-# Install pnpm
-RUN npm install -g pnpm
-
-# Set working directory
-WORKDIR /app
-
-# Copy package files
-COPY package.json pnpm-lock.yaml* ./
-
-# Install dependencies
-RUN pnpm install
-
-# Copy the rest of the application
-COPY . .
-
-# Miniconda base image
+# Use Miniconda as the base image
 FROM continuumio/miniconda3:latest
+ENV PATH="/root/miniconda3/bin:${PATH}"
 
-# Install Node.js and npm in the Miniconda image
+# Install Node.js and pnpm
 RUN apt-get update && apt-get install -y \
     curl \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
@@ -31,26 +14,29 @@ RUN apt-get update && apt-get install -y \
 # Create conda environment
 RUN conda create -n myenv python=3.9 -y && conda init
 
-
-# Copy from node_base
-COPY --from=node_base /app /app
+# Set PATH for conda
 
 # Set working directory
 WORKDIR /app
 
-# Install Python dependencies in conda environment
+# Copy package files and install Node dependencies
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install
+
+# Copy Python requirements and install
 COPY requirements.txt .
 RUN conda run -n myenv pip install --no-cache-dir -r requirements.txt
 
-# Copy Python script
-COPY main3.py .
+# Copy the rest of the application
+COPY . .
 
 # Expose ports
 EXPOSE 3000 
-EXPOSE 6547  
+EXPOSE 6547
 
-# Run commands directly with conda run
+# Run both Node and Python applications
 CMD ["sh", "-c", "\
     conda init && \
-    pnpm run dev & conda run -n myenv python main3.py \  
+    conda activate myenv && \
+    pnpm run dev & conda python main3.py \
     "]
