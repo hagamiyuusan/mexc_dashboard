@@ -16,40 +16,38 @@ RUN pnpm install
 # Copy the rest of the application
 COPY . .
 
-# Python base image
-FROM python:3.9-slim
+# Miniconda base image
+FROM continuumio/miniconda3:latest
 
-# Install Node.js and npm in the Python image
+# Install Node.js and npm in the Miniconda image
 RUN apt-get update && apt-get install -y \
     curl \
-    python3-venv \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g pnpm \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /app
+# Create conda environment
+RUN conda create -n myenv python=3.9 -y
+SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
 
-# Create and activate virtual environment
-ENV VIRTUAL_ENV=/app/venv
-RUN python -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# Expose ports
+EXPOSE 3000 
+EXPOSE 6547  
 
 # Copy from node_base
 COPY --from=node_base /app /app
 
-# Install Python dependencies in virtual environment
+# Set working directory
+WORKDIR /app
+
+# Install Python dependencies in conda environment
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN conda run -n myenv pip install --no-cache-dir -r requirements.txt
 
 # Copy Python script
 COPY main3.py .
 
-# Expose ports
-EXPOSE 3000
-EXPOSE 6547
-
-# Run commands directly
-CMD ["sh", "-c", "source /app/venv/bin/activate && pnpm run dev & python main3.py"]
+# Run both commands using conda environment
+CMD ["sh", "-c", "pnpm run dev & conda run -n myenv python main3.py"]
