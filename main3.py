@@ -411,10 +411,10 @@ async def broadcast_data(data):
     closed_clients = set()
     try:
         await asyncio.gather(
-            *[client.send(message) for client in SUBSCRIBED_CLIENTS if not client.closed],
+            *[client.send(message) for client in SUBSCRIBED_CLIENTS],
             return_exceptions=True
         )
-        closed_clients = {client for client in SUBSCRIBED_CLIENTS if client.closed}
+        closed_clients = {client for client in SUBSCRIBED_CLIENTS if client.state == websockets.protocol.State.CLOSED}
         SUBSCRIBED_CLIENTS.difference_update(closed_clients)
         if closed_clients:
             print(f"Closed {len(closed_clients)} clients")
