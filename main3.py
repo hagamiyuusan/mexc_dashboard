@@ -343,7 +343,7 @@ def get_infor_wss_me_fu():
                 pass
             time.sleep(10)
 
-async def handler(websocket, path):
+async def handler(websocket):
     """
     Handles incoming WebSocket connections and messages.
     """
