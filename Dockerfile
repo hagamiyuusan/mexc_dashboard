@@ -5,6 +5,7 @@ ENV PATH="/root/miniconda3/bin:${PATH}"
 # Install Node.js and pnpm
 RUN apt-get update && apt-get install -y \
     curl \
+    dos2unix \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g pnpm \
@@ -35,7 +36,8 @@ EXPOSE 3000
 EXPOSE 6547
 
 COPY start.sh .
-RUN chmod +x start.sh
+RUN chmod +x start.sh && \
+    dos2unix start.sh
 
 # Run both Node and Python applications
-CMD ["./start.sh"]
+CMD ["/bin/bash", "./start.sh"]
