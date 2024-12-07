@@ -29,11 +29,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create conda environment
-RUN conda create -n myenv python=3.9 -y
+RUN conda create -n myenv python=3.9 -y && conda init
 
-RUN conda init
 
-RUN conda activate myenv
 # Copy from node_base
 COPY --from=node_base /app /app
 
@@ -52,4 +50,7 @@ EXPOSE 3000
 EXPOSE 6547  
 
 # Run commands directly with conda run
-CMD sh -c "pnpm run dev & python main3.py"
+CMD ["sh", "-c", "\
+    conda activate myenv && \
+    pnpm run dev & python main3.py \  
+    "]
