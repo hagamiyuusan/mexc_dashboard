@@ -40,7 +40,7 @@ WORKDIR /app
 
 # Install Python dependencies in conda environment
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN conda run -n myenv pip install --no-cache-dir -r requirements.txt
 
 # Copy Python script
 COPY main3.py .
@@ -52,6 +52,5 @@ EXPOSE 6547
 # Run commands directly with conda run
 CMD ["sh", "-c", "\
     conda init && \
-    conda activate myenv && \
-    pnpm run dev & python main3.py \  
+    pnpm run dev & conda run -n myenv python main3.py \  
     "]
