@@ -409,8 +409,10 @@ async def broadcast_data(data):
     if SUBSCRIBED_CLIENTS:
         print(f"Broadcasting: {message}")
     await asyncio.gather(
-        *[client.send(message) for client in SUBSCRIBED_CLIENTS if not client.closed()]
+        *[client.send(message) for client in SUBSCRIBED_CLIENTS if not client.closed]
     )
+
+
 
 async def main():
     server = await websockets.serve(handler, "0.0.0.0", 6547)

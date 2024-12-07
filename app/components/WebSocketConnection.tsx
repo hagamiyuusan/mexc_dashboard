@@ -7,13 +7,14 @@ export const WebSocketConnection = () => {
   const { updatePositions, setConnectionStatus } = useTradingStore();
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const isMountedRef = useRef<boolean>(true);
 
   useEffect(() => {
     console.log("WebSocketConnection effect running");
-
+    isMountedRef.current = true;
     const connectWebSocket = () => {
       console.log("Attempting to connect WebSocket...");
-
+      if (!isMountedRef.current) return;
       // Don't create a new connection if we already have an active one
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         console.log("WebSocket already connected");
@@ -42,7 +43,7 @@ export const WebSocketConnection = () => {
         setConnectionStatus({ spot: false, futures: false });
 
         // Only attempt reconnect if this is still the current websocket
-        if (ws === wsRef.current) {
+        if (ws === wsRef.current && isMountedRef.current) {
           console.log("Scheduling reconnection...");
           reconnectTimeoutRef.current = setTimeout(() => {
             console.log("Attempting reconnection...");
@@ -72,6 +73,7 @@ export const WebSocketConnection = () => {
     // Cleanup function
     return () => {
       console.log("Cleanup running");
+      isMountedRef.current = false;
 
       // Clear any pending reconnection attempts
       if (reconnectTimeoutRef.current) {
