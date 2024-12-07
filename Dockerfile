@@ -33,13 +33,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY main3.py .
 
 # Create start script (fixed version)
-COPY <<'EOF' /app/start.sh
-#!/bin/bash
-pnpm run dev & python main3.py
-EOF
-
-# Make script executable
-RUN chmod +x /app/start.sh
 
 # Command to run both services
-CMD ["/app/start.sh"]
+CMD ["sh", "-c", "pnpm run dev & python main3.py"]
