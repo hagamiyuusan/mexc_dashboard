@@ -25,16 +25,21 @@ COPY --from=node_base /app /app
 # Set working directory
 WORKDIR /app
 
-# Install Python dependencies (assuming you have requirements.txt)
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy Python script
 COPY main3.py .
 
-# Create a startup script
-RUN echo '#!/bin/bash\npnpm run dev & python main3.py' > start.sh
-RUN chmod +x start.sh
+# Create start script (fixed version)
+COPY <<'EOF' /app/start.sh
+#!/bin/bash
+pnpm run dev & python main3.py
+EOF
+
+# Make script executable
+RUN chmod +x /app/start.sh
 
 # Command to run both services
-CMD ["./start.sh"]
+CMD ["/app/start.sh"]
