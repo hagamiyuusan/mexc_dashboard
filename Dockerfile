@@ -28,13 +28,10 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Initialize conda in bash
-RUN conda init bash && \
-    echo "conda activate myenv" >> ~/.bashrc
-
+RUN conda init
 # Create conda environment
 RUN conda create -n myenv python=3.9 -y
-
+RUN conda activate myenv
 # Copy from node_base
 COPY --from=node_base /app /app
 
@@ -43,7 +40,7 @@ WORKDIR /app
 
 # Install Python dependencies in conda environment
 COPY requirements.txt .
-RUN conda run -n myenv pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy Python script
 COPY main3.py .
@@ -52,9 +49,5 @@ COPY main3.py .
 EXPOSE 3000 
 EXPOSE 6547  
 
-# Create a startup script
-RUN echo '#!/bin/bash\nsource ~/.bashrc\npnpm run dev & python main3.py' > /app/start.sh && \
-    chmod +x /app/start.sh
-
-# Run the startup script
-CMD ["/app/start.sh"]
+# Run commands directly with conda run
+CMD sh -c "pnpm run dev & python main3.py"
