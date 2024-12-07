@@ -28,9 +28,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN conda init
 # Create conda environment
 RUN conda create -n myenv python=3.9 -y
+
+RUN conda init
+
 RUN conda activate myenv
 # Copy from node_base
 COPY --from=node_base /app /app
