@@ -19,6 +19,15 @@ COPY . .
 # Python base image
 FROM python:3.9-slim
 
+# Install Node.js and npm in the Python image
+RUN apt-get update && apt-get install -y \
+    curl \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g pnpm \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy from node_base
 COPY --from=node_base /app /app
 
@@ -32,7 +41,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy Python script
 COPY main3.py .
 
-# Create start script (fixed version)
-
-# Command to run both services
+# Run both commands
 CMD ["sh", "-c", "pnpm run dev & python main3.py"]
