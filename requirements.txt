@@ -1,4 +1,4 @@
-websocket
+websockets
 websocket-client
 asyncio
 requests
