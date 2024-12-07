@@ -50,4 +50,4 @@ RUN conda run -n myenv pip install --no-cache-dir -r requirements.txt
 COPY main3.py .
 
 # Run both commands using conda environment
-CMD ["conda", "activate", "myenv", "bash", "-c", "pnpm run dev & python main3.py"]
+CMD ["conda", "activate", "myenv", "bash", "pnpm run dev & python main3.py"]
