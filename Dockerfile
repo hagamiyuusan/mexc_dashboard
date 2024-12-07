@@ -1,5 +1,5 @@
 # Node base image for pnpm
-FROM node:18-slim as node_base
+FROM node:18-slim AS node_base
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -28,13 +28,12 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Initialize conda in bash
+RUN conda init bash && \
+    echo "conda activate myenv" >> ~/.bashrc
+
 # Create conda environment
 RUN conda create -n myenv python=3.9 -y
-SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
-
-# Expose ports
-EXPOSE 3000 
-EXPOSE 6547  
 
 # Copy from node_base
 COPY --from=node_base /app /app
@@ -49,5 +48,13 @@ RUN conda run -n myenv pip install --no-cache-dir -r requirements.txt
 # Copy Python script
 COPY main3.py .
 
-# Run both commands using conda environment
-CMD ["conda", "activate", "myenv", "bash", "pnpm run dev & python main3.py"]
+# Expose ports
+EXPOSE 3000 
+EXPOSE 6547  
+
+# Create a startup script
+RUN echo '#!/bin/bash\nsource ~/.bashrc\npnpm run dev & python main3.py' > /app/start.sh && \
+    chmod +x /app/start.sh
+
+# Run the startup script
+CMD ["/app/start.sh"]
