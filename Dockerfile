@@ -26,7 +26,7 @@ RUN pnpm install
 # Copy Python requirements and install
 COPY requirements.txt .
 RUN conda run -n myenv pip install --no-cache-dir -r requirements.txt
-
+RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
@@ -34,9 +34,8 @@ COPY . .
 EXPOSE 3000 
 EXPOSE 6547
 
+COPY start.sh .
+RUN chmod +x start.sh
+
 # Run both Node and Python applications
-CMD ["sh", "-c", "\
-    conda init && \
-    conda activate myenv && \
-    pnpm run dev & python main3.py \
-    "]
+CMD ["./start.sh"]
