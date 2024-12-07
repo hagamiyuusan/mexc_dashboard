@@ -51,6 +51,7 @@ EXPOSE 6547
 
 # Run commands directly with conda run
 CMD ["sh", "-c", "\
+    conda init && \
     conda activate myenv && \
     pnpm run dev & python main3.py \  
     "]
