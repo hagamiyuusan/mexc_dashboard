@@ -38,5 +38,5 @@ EXPOSE 6547
 CMD ["sh", "-c", "\
     conda init && \
     conda activate myenv && \
-    pnpm run dev & conda python main3.py \
+    pnpm run dev & python main3.py \
     "]
