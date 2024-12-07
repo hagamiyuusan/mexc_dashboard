@@ -4,6 +4,7 @@ services:
     build: .
     ports:
       - "8686:3000" # Adjust port according to your pnpm app
+      - "6547:6547" # Adjust port according to your WebSocket backend
     volumes:
       - .:/app
       - /app/node_modules

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { useTradingStore } from '../store/tradingStore';
+import { useEffect, useRef } from "react";
+import { useTradingStore } from "../store/tradingStore";
 
 export const WebSocketConnection = () => {
   const { updatePositions, setConnectionStatus } = useTradingStore();
@@ -9,58 +9,59 @@ export const WebSocketConnection = () => {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    console.log('WebSocketConnection effect running');
-    
+    console.log("WebSocketConnection effect running");
+
     const connectWebSocket = () => {
-      console.log('Attempting to connect WebSocket...');
-      
+      console.log("Attempting to connect WebSocket...");
+
       // Don't create a new connection if we already have an active one
       if (wsRef.current?.readyState === WebSocket.OPEN) {
-        console.log('WebSocket already connected');
+        console.log("WebSocket already connected");
         return;
       }
 
       // Close existing connection if any
       if (wsRef.current) {
-        console.log('Closing existing connection');
+        console.log("Closing existing connection");
         wsRef.current.close();
         wsRef.current = null;
       }
-
-      const ws = new WebSocket('ws://localhost:6547');
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:6547";
+      console.log("WebSocket URL:", wsUrl);
+      const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('WebSocket Connected');
+        console.log("WebSocket Connected");
         setConnectionStatus({ spot: true, futures: true });
-        ws.send(JSON.stringify({ type: 'subscribe' }));
+        ws.send(JSON.stringify({ type: "subscribe" }));
       };
 
       ws.onclose = (event) => {
-        console.log('WebSocket Disconnected', event.code, event.reason);
+        console.log("WebSocket Disconnected", event.code, event.reason);
         setConnectionStatus({ spot: false, futures: false });
-        
+
         // Only attempt reconnect if this is still the current websocket
         if (ws === wsRef.current) {
-          console.log('Scheduling reconnection...');
+          console.log("Scheduling reconnection...");
           reconnectTimeoutRef.current = setTimeout(() => {
-            console.log('Attempting reconnection...');
+            console.log("Attempting reconnection...");
             connectWebSocket();
           }, 5000);
         }
       };
 
       ws.onerror = (error) => {
-        console.error('WebSocket Error:', error);
+        console.error("WebSocket Error:", error);
       };
 
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('Received message:', data);
+          console.log("Received message:", data);
           updatePositions(data);
         } catch (error) {
-          console.error('Error processing message:', error);
+          console.error("Error processing message:", error);
         }
       };
     };
@@ -70,8 +71,8 @@ export const WebSocketConnection = () => {
 
     // Cleanup function
     return () => {
-      console.log('Cleanup running');
-      
+      console.log("Cleanup running");
+
       // Clear any pending reconnection attempts
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);

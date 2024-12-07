@@ -28,6 +28,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+
+
+EXPOSE 3000 
+EXPOSE 6547  
+
 # Copy from node_base
 COPY --from=node_base /app /app
 
