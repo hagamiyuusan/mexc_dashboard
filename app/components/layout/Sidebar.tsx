@@ -17,6 +17,7 @@ const navigation = [
   // { name: "Futures Positions", href: "/futures", icon: ChartBarIcon },
   { name: "Settings", href: "/settings", icon: Cog6ToothIcon },
   // { name: "Notifications", href: "/notifications", icon: BellIcon },
+  { name: "Symbols", href: "/symbol", icon: BellIcon },
 ];
 
 interface SidebarProps {

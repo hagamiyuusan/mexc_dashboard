@@ -4,6 +4,7 @@ import asyncio
 import websockets
 from websocket import create_connection
 
+
 symbol_list = ["X","PNUT","SPX","HIPPO","CHILLGUY","RIFSOL","LUCE","MEMEFI","ZRC","CHEEMS","NEIROETH"]
 exchange_list = ["Mexc","Mexc_fu"]
 contract_amount = dict()
@@ -273,7 +274,9 @@ def get_info_wss_me():
             k_t.start()
             
             while True:
+                
                 data = json.loads(ws.recv())
+                print(data, "from get_info_wss_me")
                 if "d" in data:
                     symbol = data['d']["a"]
                     bal["Mexc"]["spot"][symbol] = float(data["d"]["f"])
@@ -319,6 +322,7 @@ def get_infor_wss_me_fu():
             
             while True:
                 response = json.loads(ws.recv())
+                print(response, "from get_infor_wss_me_fu")
                 channel = response.get("channel")
                 data = response.get("data")
                 
@@ -359,7 +363,7 @@ async def handler(websocket):
                     credentials = data.get("data", {})
                     access_key = credentials.get("access_key")
                     secret_key = credentials.get("secret_key")
-                    
+                    print("access_key, secret_key", access_key, secret_key)
                     if access_key and secret_key:
                         try:
                             # Update credentials and restart all connections
@@ -406,8 +410,8 @@ async def handler(websocket):
 
 async def broadcast_data(data):
     message = json.dumps(data)
-    if SUBSCRIBED_CLIENTS:
-        print(f"Broadcasting: {message}")
+    # if SUBSCRIBED_CLIENTS:
+        # print(f"Broadcasting: {message}")
     closed_clients = set()
     try:
         await asyncio.gather(
@@ -432,7 +436,7 @@ async def main():
             for symbol in symbol_list:
                 bal_on_s = bal["Mexc"]["spot"].get(symbol, 0)
                 long_pos = bal["Mexc_fu"]["long"].get(symbol, 0)
-                short_pos = -bal["Mexc_fu"]["short"].get(symbol, 0)
+                short_pos = bal["Mexc_fu"]["short"].get(symbol, 0)
                 output_dict[symbol] = {
                     "spot": round(bal_on_s, 2),
                     "long": round(long_pos, 2),
