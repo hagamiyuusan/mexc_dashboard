@@ -344,6 +344,13 @@ class WebSocketHandler:
                     data = json.loads(message)
                     print(f"Received message from {websocket.remote_address}: {data}")
                     
+                    if data.get("type") == "get_symbols":
+                        print("get_symbols from client")
+                        await websocket.send(json.dumps({
+                            "type": "list_symbols",
+                            "data": symbol_list
+                        }))
+
 
                     if data.get("type") == "update_symbols":
                         symbols = data.get("data", {}).get("symbols", [])
@@ -429,12 +436,15 @@ class WebSocketHandler:
 
 
 def convert_output():
-    output_dict = {}
+    output_dict = {
+        "type": "position_data",  # Add message type
+        "data": {}
+    }
     for symbol in symbol_list:
         bal_on_s = bal["Mexc"]["spot"].get(symbol, 0)
         long_pos = bal["Mexc_fu"]["long"].get(symbol, 0)
-        short_pos = bal["Mexc_fu"]["short"].get(symbol, 0)
-        output_dict[symbol] = {
+        short_pos = - bal["Mexc_fu"]["short"].get(symbol, 0)
+        output_dict["data"][symbol] = {
             "spot": round(bal_on_s, 2),
             "long": round(long_pos, 2),
             "short": round(short_pos, 2),

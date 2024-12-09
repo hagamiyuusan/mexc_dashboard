@@ -14,12 +14,14 @@ interface TradingStore {
     futures: boolean;
   };
   lastUpdate: Date | null;
+  symbols: string[];
 
   updatePositions: (data: Record<string, Position>) => void;
   setConnectionStatus: (status: { spot?: boolean; futures?: boolean }) => void;
   getTotalSpotBalance: () => number;
   getTotalFuturesExposure: () => number;
   getNetExposure: () => number;
+  updateListSymbols: (symbols: string[]) => void;
 }
 
 export const useTradingStore = create<TradingStore>((set, get) => ({
@@ -29,7 +31,8 @@ export const useTradingStore = create<TradingStore>((set, get) => ({
     futures: false,
   },
   lastUpdate: null,
-
+  symbols: [],
+  
   updatePositions: (data) =>
     set({
       positions: data,
@@ -61,4 +64,6 @@ export const useTradingStore = create<TradingStore>((set, get) => ({
       0
     );
   },
+
+  updateListSymbols: (symbols) => set({ symbols: symbols }),  
 }));

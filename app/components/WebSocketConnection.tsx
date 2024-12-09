@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import { useTradingStore } from "../store/tradingStore";
 
 export const WebSocketConnection = () => {
-  const { updatePositions, setConnectionStatus } = useTradingStore();
+  const { updatePositions, setConnectionStatus, updateListSymbols } =
+    useTradingStore();
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
   const isMountedRef = useRef<boolean>(true);
@@ -36,6 +37,7 @@ export const WebSocketConnection = () => {
         console.log("WebSocket Connected");
         setConnectionStatus({ spot: true, futures: true });
         ws.send(JSON.stringify({ type: "subscribe" }));
+        ws.send(JSON.stringify({ type: "get_symbols" }));
       };
 
       ws.onclose = (event) => {
@@ -48,7 +50,7 @@ export const WebSocketConnection = () => {
           reconnectTimeoutRef.current = setTimeout(() => {
             console.log("Attempting reconnection...");
             connectWebSocket();
-          }, 5000);
+          }, 1000);
         }
       };
 
@@ -60,7 +62,15 @@ export const WebSocketConnection = () => {
         try {
           const data = JSON.parse(event.data);
           console.log("Received message:", data);
-          updatePositions(data);
+          switch (data.type) {
+            case "position_data":
+              updatePositions(data.data);
+              break;
+            case "list_symbols":
+              updateListSymbols(data.data);
+              console.log(data.data, "from list_symbols");
+              break;
+          }
         } catch (error) {
           console.error("Error processing message:", error);
         }

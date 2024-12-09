@@ -30,7 +30,7 @@ export const Sidebar: React.FC<{ onNavigate?: () => void }> = ({
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col h-full bg-gray-800">
+    <div className="fixed top-0 left-0 h-full w-64 flex flex-col bg-gray-800">
       <nav className="mt-5 flex-1 px-2 space-y-1">
         {navigation.map((item) => (
           <Link

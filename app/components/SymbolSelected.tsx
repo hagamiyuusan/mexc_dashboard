@@ -53,6 +53,8 @@ export function SymbolSelector() {
     fetchSymbols();
   }, []);
 
+  
+
   const handleSymbolToggle = (symbol: string) => {
     setSelectedSymbols((current) => {
       if (current.includes(symbol)) {
